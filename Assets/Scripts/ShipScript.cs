@@ -4,15 +4,27 @@ using UnityEngine;
 
 public class ShipScript : MonoBehaviour
 {
-    // Start is called before the first frame update
+    List<GameObject> touchTiles = new List<GameObject>();
+    public float xOffset = 0;
+    public float zOffset = 0;
+
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void ClearTileList()
+    {
+        touchTiles.Clear();
+    }
+
+    public Vector3 GetOffsetVect(Vector3 tilePos)
+    {
+        return new Vector3(tilePos.x + xOffset, 2, tilePos.z + zOffset);
     }
 }
