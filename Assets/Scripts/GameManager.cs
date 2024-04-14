@@ -10,7 +10,14 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Ships")]
     public GameObject[] ships;
+    public EnemyScript enemyScript;
+    private ShipScript shipScript;
+    private List<int[]> enemyShips;
+    private int shipIndex = 0;
+    public List<TileScript> allTileScript;
+
     [Header("Hud")]
     public Button nextBtn;
     public Button rotateBtn;
@@ -24,17 +31,12 @@ public class GameManager : MonoBehaviour
     public GameObject enemyMissilePrefab;
     public GameObject firePrefab;
     public GameObject woodDock;
-    public List<TileScript> allTileScript;
 
     private bool setupComplete = false;
     private bool playerTurn = true;
-    private int shipIndex = 0;
-    private ShipScript shipScript;
-    public EnemyScript enemyScript;
-    private List<int[]> enemyShips;
-    private List<GameObject> playerFires;
-    private List<GameObject> enemyFires;
-
+    
+    private List<GameObject> playerFires = new List<GameObject>();
+    private List<GameObject> enemyFires = new List<GameObject>();
 
     private int enemyShipCount = 5;
     private int playerShipCount = 5;
@@ -44,6 +46,7 @@ public class GameManager : MonoBehaviour
         shipScript = ships[shipIndex].GetComponent<ShipScript>();
         nextBtn.onClick.AddListener(() => NextShipClicked());
         rotateBtn.onClick.AddListener(() => RotateClicked());
+        replayBtn.onClick.AddListener(() => ReplayClicked());
         enemyShips = enemyScript.PlaceEnemyShips();
     }
 
@@ -193,7 +196,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void EndEnemyTurn()
+    public void EndEnemyTurn()
     {
         for (int i = 0; i < ships.Length; i++)
         {
