@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,15 +10,27 @@ public class ShipScript : MonoBehaviour
     public float zOffset = 0;
     public float nextZRotation = 90f;
     private GameObject clickedTile;
+    int hitCount = 0;
+    public int shipSize;
 
-    void Start()
+    private Material[] allMaterials;
+    List<Color> allColors = new List<Color>();
+
+    private void Start()
     {
-        
+        allMaterials = GetComponent<Renderer>().materials;
+        for (int i = 0; i < allMaterials.Length; i++)
+        {
+            allColors.Add(allMaterials[i].color);
+        }
     }
 
-    void Update()
+    private void OnCollisionEnter(Collision collision)
     {
-        
+        if (collision.gameObject.CompareTag("Tile"))
+        {
+            touchTiles.Add(collision.gameObject);
+        }
     }
 
     public void ClearTileList()
@@ -32,6 +45,10 @@ public class ShipScript : MonoBehaviour
 
     public void RotateShip()
     {
+        if(clickedTile == null)
+        {
+            return;
+        }
         touchTiles.Clear();
         if (gameObject.CompareTag("Plane"))
         {
@@ -52,6 +69,7 @@ public class ShipScript : MonoBehaviour
 
     public void SetPosition(Vector3 newVect)
     {
+        ClearTileList();
         transform.localPosition = new Vector3(newVect.x + xOffset, 2, newVect.z +zOffset);
     }
 
@@ -59,4 +77,64 @@ public class ShipScript : MonoBehaviour
     {
         clickedTile = tile;
     }
+
+    public bool OnGameBoard()
+    {
+        return touchTiles.Count == shipSize;
+    }
+
+    public bool HitCheckSank()
+    {
+        hitCount++;
+        return shipSize <= hitCount;
+    }
+
+    public void FlashColor(Color tempColor)
+    {
+        ChangeColorRecursively(gameObject, tempColor);
+        Invoke("ResetColor", 0.5f);
+    }
+
+    private void ChangeColorRecursively(GameObject obj, Color color)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            Material[] materials = renderer.materials;
+            foreach (Material mat in materials)
+            {
+                mat.color = color;
+            }
+        }
+
+        foreach (Transform child in obj.transform)
+        {
+            ChangeColorRecursively(child.gameObject, color);
+        }
+    }
+
+
+    private void ResetColorRecursively(GameObject obj)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            Material[] materials = renderer.materials;
+            for (int i = 0; i < materials.Length; i++)
+            {
+                materials[i].color = allColors[i];
+            }
+        }
+
+        foreach (Transform child in obj.transform)
+        {
+            ResetColorRecursively(child.gameObject);
+        }
+    }
+
+    private void ResetColor()
+    {
+        ResetColorRecursively(gameObject);
+    }
+
 }
